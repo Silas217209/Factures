@@ -1,0 +1,106 @@
+\documentclass[11pt,parskip=full-,enlargefirstpage=true]{scrlttr2}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{selinput}
+
+\SelectInputMappings{adieresis={ä},germandbls={ß}}
+\usepackage[ngerman]{babel}
+
+\usepackage{tabularx}
+\usepackage{booktabs}
+
+\usepackage{numprint}
+\nprounddigits{2}
+
+\usepackage[right]{eurosym}
+
+\usepackage{datatool}
+\DTLnewdb{rechnung}
+
+\newcommand\Posten[3]{%
+  \DTLnewrow{rechnung}
+  \DTLnewdbentry{rechnung}{Bezeichnung}{#1}
+  \DTLnewdbentry{rechnung}{Anzahl}{#2}
+  \DTLnewdbentry{rechnung}{EP}{#3}
+  {\dtlexpandnewvalue
+    \FPeval\fpresult{round(#2*#3)(2)}
+    \DTLnewdbentry{rechnung}{GP}{\fpresult}
+  }
+}
+
+\newcommand\mwst{}
+
+\newenvironment{rechnung}[1]{%
+  \renewcommand\mwst{#1}%
+  \DTLcleardb{rechnung}%
+}{%
+  %\DTLsumforkeys{rechnung}{GP}{\Zwischensumme}% liefert Fehler bei Zwischensummen ab 1000
+  % Alternative
+  \def\Zwischensumme{0}%
+  \DTLforeach*{rechnung}{\gp=GP}{\FPeval\Zwischensumme{\Zwischensumme+\gp}}%
+  %
+  \FPeval\MWSt{round(\mwst*\Zwischensumme/100)(2)}%
+  \FPeval\Summe{round(\Zwischensumme+\MWSt)(2)}%
+  \xdef\Summe{\Summe}%
+  \par\centering
+  \begin{tabularx}{\textwidth}{Xrrr}
+    \toprule
+    Bezeichnung&Anzahl&Einzelpreis&Gesamtpreis
+    \DTLforeach*{rechnung}{\bez=Bezeichnung,\anz=Anzahl,\ep=EP,\gp=GP}{%
+      \DTLiffirstrow{\\\midrule}{\\}%
+      \bez&\npnoround\numprint{\anz}\nprounddigits{2}&\EUR{\numprint{\ep}}&\EUR{\numprint{\gp}}%
+    }\\
+    \midrule
+    \if\mwst0\else
+      Zwischensumme&&&\EUR{\numprint{\Zwischensumme}}\\
+      Mehrwertsteuer (\mwst\,\%)&&&\numprint{\MWSt}\\
+      \midrule
+    \fi
+    Summe&&&\EUR{\numprint{\Summe}}\\
+    \bottomrule
+  \end{tabularx}
+  \par
+}
+
+\KOMAoptions{%
+fromemail=true,       % Email wird im Briefkopf angezeigt
+fromurl=true,         % URL wird im Briefkopf angezeigt
+fromlogo=true,        % Logo wird im Briefkopf angezeigt
+locfield=wide,          % Breite Absenderergänzung (location)
+fromalign=left,         % Ausrichtung des Briefkopfes
+fromrule=afteraddress%  % Trennlinie unter dem Briefkopf
+}
+
+ \setkomavar{fromlogo}{\includegraphics[height=3cm]{_zebrakuh.jpeg}}
+
+\renewcommand*{\firsthead}{%
+  \vspace*{1cm} % Adds vertical space above the horizontal line
+  \usekomavar{fromlogo}\hfill
+  \parbox[b]{\textwidth}{%
+    \raggedright
+    \usekomavar{fromname}\\
+    \usekomavar{fromaddress}\\
+    \usekomavar{fromphone}\\
+    \usekomavar{fromemail}
+  }
+  \vspace{1mm} % Adjust vertical space if needed
+  \hrule width \textwidth % Horizontal line extending the full width
+}
+
+
+\setkomavar{fromname}{Mathilde Mélois}
+\setkomavar{fromaddress}{Schützenstraße 4 \\ 16359 Biesenthal}
+\setkomavar{fromemail}[]{\it mathilde.melois@t-online.de}
+\setkomavar{fromurl}[]{\it www.zebrakuh.com}
+
+\setkomavar{frombank}[IBAN]{DE27 1007 0848 0027 609700}
+\newkomavar[BIC]{BIC}
+\setkomavar{BIC}{DEUTDEDB110}
+
+\setkomavar{firstfoot}{\centering \scriptsize Ohne Umsatzsteuer nach §19 UStG \textbullet\ 065/248/06140 \textbullet\ Mathilde MELOIS \textbullet\ \usekomavar{frombank} \textbullet\ \usekomavar{BIC}}
+
+\setkomavar{signature}{\includegraphics[width=4cm]{_signature.png}}
+
+\renewcommand\familydefault{\sfdefault}
+

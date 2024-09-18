@@ -1,0 +1,31 @@
+\input{_static}
+
+\begin{document}
+
+\begin{letter}{Firma Freundlich \\ Rechnungstraße 12 \\ 45678 Ortsname}
+\setkomavar{invoice}{xxyyzz-2013}
+
+\opening{Sehr geehrte Damen und Herren,}
+
+hiermit berechnen wir
+
+\begin{rechnung}{0}
+  \Posten{Arbeitsstunden}{1}{30.50}
+  \Posten{Grafikarbeit}{1}{127.57}
+  \Posten{Arbeitsstunden}{1}{30.50}
+  \Posten{Druck}{1}{110.27}
+\end{rechnung}
+
+{\footnotesize Leistungsdatum gleich Rechnungsdatum}
+
+Bitte überweisen Sie den Rechnungsbetrag in Höhe von \EUR{\numprint{\Summe}} auf folgendes Konto. Vielen Dank!
+
+\begin{tabular}{>{\raggedleft\arraybackslash}p{0.2\textwidth} >{\raggedright\arraybackslash}p{0.7\textwidth}}
+    Inhaberin & Mathilde MELOIS \\
+    IBAN & \usekomavar{frombank} \\
+    BIC & \usekomavar{BIC} \\
+\end{tabular}
+
+\closing{Mit freundlichen Grüßen}   
+\end{letter}
+\end{document}
